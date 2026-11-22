@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: shella-sarisari-backend
+    env: python
+    rootDir: backend
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn store_project.wsgi:application"
+    plan: free
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: DATABASE_URL
+        sync: false
+      - key: DJANGO_DEBUG
+        value: "0"
+      - key: DJANGO_SECRET
+        generateValue: true

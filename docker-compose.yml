@@ -1,0 +1,38 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: sari_store
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+  backend:
+    build: ./backend
+    entrypoint: ["/bin/sh", "-c", "./docker-entrypoint.sh && gunicorn store_project.wsgi:application --bind 0.0.0.0:8000"]
+    volumes:
+      - ./backend:/code
+      - static_volume:/code/staticfiles
+      - media_volume:/code/media
+    environment:
+      - POSTGRES_DB=sari_store
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_HOST=db
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+volumes:
+  db_data:
+  static_volume:
+  media_volume:
