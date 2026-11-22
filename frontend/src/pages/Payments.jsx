@@ -16,6 +16,10 @@ export default function Payments() {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Searchable dropdown state
+  const [custSearch, setCustSearch] = useState('');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
   useEffect(() => {
     loadData();
   }, []);
@@ -204,17 +208,112 @@ export default function Payments() {
         <form onSubmit={submit}>
           <div className="form-group" style={{ marginBottom: 16 }}>
             <label className="form-label">Select Customer Account</label>
-            <select className="form-select" value={customerId} onChange={e => setCustomerId(e.target.value)} required>
-              <option value="">Select customer to view current debt balance...</option>
-              {customers.map(c => {
-                const info = getCustomerUtangInfo(c.id);
-                return (
-                  <option key={c.id} value={c.id}>
-                    {c.name} — {info.balance > 0 ? `Utang Due: ₱${info.balance.toFixed(2)}` : 'No Utang (₱0.00)'}
-                  </option>
-                );
-              })}
-            </select>
+            {/* Hybrid Searchable Dropdown */}
+            <div style={{ position: 'relative' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  background: 'var(--input-bg, rgba(255,255,255,0.05))',
+                  border: '1px solid var(--border)',
+                  borderRadius: '10px',
+                  overflow: 'hidden',
+                }}
+              >
+                <span style={{ padding: '0 12px', color: 'var(--text-muted)', fontSize: '14px' }}>🔍</span>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder={customerId ? (customers.find(c => String(c.id) === String(customerId))?.name || 'Select customer...') : 'Type to search customer...'}
+                  value={custSearch}
+                  onChange={e => { setCustSearch(e.target.value); setDropdownOpen(true); }}
+                  onFocus={() => setDropdownOpen(true)}
+                  style={{ border: 'none', background: 'transparent', flex: 1, height: '44px' }}
+                  autoComplete="off"
+                />
+                {customerId && (
+                  <button
+                    type="button"
+                    onClick={() => { setCustomerId(''); setCustSearch(''); setDropdownOpen(false); }}
+                    style={{ padding: '0 12px', color: 'var(--text-muted)', fontSize: '16px', cursor: 'pointer', background: 'none', border: 'none' }}
+                    title="Clear selection"
+                  >✕</button>
+                )}
+                <span style={{ padding: '0 12px', color: 'var(--text-muted)', fontSize: '12px' }}>▾</span>
+              </div>
+              {dropdownOpen && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 'calc(100% + 4px)',
+                    left: 0,
+                    right: 0,
+                    background: 'var(--card-bg, #1a1a2e)',
+                    border: '1px solid var(--border-gold)',
+                    borderRadius: '10px',
+                    zIndex: 999,
+                    maxHeight: '220px',
+                    overflowY: 'auto',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+                  }}
+                >
+                  {customers
+                    .filter(c => !custSearch || c.name.toLowerCase().includes(custSearch.toLowerCase()) || (c.phone && c.phone.includes(custSearch)))
+                    .map(c => {
+                      const info = getCustomerUtangInfo(c.id);
+                      const isSelected = String(c.id) === String(customerId);
+                      return (
+                        <div
+                          key={c.id}
+                          onClick={() => {
+                            setCustomerId(String(c.id));
+                            setCustSearch('');
+                            setDropdownOpen(false);
+                          }}
+                          style={{
+                            padding: '10px 16px',
+                            cursor: 'pointer',
+                            background: isSelected ? 'rgba(212,160,23,0.15)' : 'transparent',
+                            borderBottom: '1px solid var(--border)',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            transition: 'background 0.15s',
+                          }}
+                          onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
+                          onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = 'transparent'; }}
+                        >
+                          <div>
+                            <div style={{ fontWeight: '700', color: isSelected ? 'var(--gold-200)' : 'var(--text)', fontSize: '14px' }}>{c.name}</div>
+                            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{c.phone || 'No phone'}</div>
+                          </div>
+                          <div style={{ textAlign: 'right' }}>
+                            <div style={{ fontSize: '13px', fontWeight: '800', color: info.balance > 0 ? 'var(--crimson)' : '#22c55e' }}>
+                              {info.balance > 0 ? `₱${info.balance.toFixed(2)}` : '₱0.00'}
+                            </div>
+                            <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{info.balance > 0 ? 'Utang Due' : 'Paid ✓'}</div>
+                          </div>
+                        </div>
+                      );
+                    })
+                  }
+                  {customers.filter(c => !custSearch || c.name.toLowerCase().includes(custSearch.toLowerCase()) || (c.phone && c.phone.includes(custSearch))).length === 0 && (
+                    <div style={{ padding: '16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
+                      No customers found
+                    </div>
+                  )}
+                </div>
+              )}
+              {/* Invisible backdrop to close dropdown */}
+              {dropdownOpen && (
+                <div
+                  style={{ position: 'fixed', inset: 0, zIndex: 998 }}
+                  onClick={() => setDropdownOpen(false)}
+                />
+              )}
+            </div>
+            {/* Hidden required input for form validation */}
+            <input type="hidden" value={customerId} required />
           </div>
 
           {/* Selected Customer Utang Info Card */}
@@ -232,13 +331,13 @@ export default function Payments() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, flexWrap: 'wrap', gap: '12px' }}>
                 <div>
                   <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Total Utang Owed</div>
-                  <div style={{ fontSize: '22px', fontWeight: '800', color: selectedUtangInfo.balance > 0 ? '#f87171' : '#4ade80' }}>
+                  <div style={{ fontSize: '22px', fontWeight: '800', color: selectedUtangInfo.balance > 0 ? 'var(--crimson)' : '#16a34a' }}>
                     {selectedUtangInfo.balance > 0 ? `₱${selectedUtangInfo.balance.toFixed(2)}` : '₱0.00 🎉'}
                   </div>
                 </div>
                 <div>
                   <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Total Payments Logged</div>
-                  <div style={{ fontSize: '20px', fontWeight: '800', color: '#4ade80' }}>
+                  <div style={{ fontSize: '20px', fontWeight: '800', color: '#16a34a' }}>
                     ₱{selectedUtangInfo.totalPaid.toFixed(2)}
                   </div>
                 </div>

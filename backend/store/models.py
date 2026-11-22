@@ -31,6 +31,10 @@ class Customer(models.Model):
     phone = models.CharField(max_length=80, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
     credit_status = models.CharField(max_length=30, default='good')
+    username = models.CharField(max_length=150, unique=True, null=True, blank=True)
+    password = models.CharField(max_length=128, blank=True, null=True)
+    email = models.CharField(max_length=120, blank=True, null=True)
+    image_data = models.TextField(blank=True, null=True, help_text='Base64 data URL of the customer image')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

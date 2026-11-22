@@ -31,9 +31,13 @@ class CustomerSerializer(serializers.ModelSerializer):
         model = Customer
         fields = [
             'id', 'name', 'phone', 'address', 'credit_status',
+            'username', 'password', 'email', 'image_data',
             'created_at', 'updated_at',
             'total_utang', 'total_paid', 'utang_balance'
         ]
+        extra_kwargs = {
+            'password': {'write_only': True, 'required': False}
+        }
 
     def get_total_utang(self, obj):
         sales_utang = obj.sales.filter(type='utang')

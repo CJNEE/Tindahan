@@ -4,7 +4,17 @@ import { NavLink, useNavigate } from 'react-router-dom'
 export default function Sidebar({ isOpen, onClose }) {
   const navigate = useNavigate()
 
-  const navItems = [
+  const userRole = localStorage.getItem('sari_role') || 'admin'
+  let memberData = null
+  try {
+    memberData = JSON.parse(localStorage.getItem('sari_member') || 'null')
+  } catch(e) {
+    memberData = null
+  }
+
+  const isMember = userRole === 'member'
+
+  const adminNavItems = [
     { to:'/', label:'Dashboard', icon:'🏠' },
     { to:'/products', label:'Products', icon:'📦' },
     { to:'/shop', label:'Shop', icon:'🛒' },
@@ -14,8 +24,16 @@ export default function Sidebar({ isOpen, onClose }) {
     { to:'/history', label:'History', icon:'🕒' }
   ]
 
+  const memberNavItems = [
+    { to:'/member', label:'My Account & Utang', icon:'👤' }
+  ]
+
+  const navItems = isMember ? memberNavItems : adminNavItems
+
   const handleLogout = () => {
     localStorage.removeItem('token')
+    localStorage.removeItem('sari_role')
+    localStorage.removeItem('sari_member')
     navigate('/login')
     window.location.reload()
   }
@@ -38,7 +56,9 @@ export default function Sidebar({ isOpen, onClose }) {
           <span>SHELLA</span>
           <span style={{ fontSize: '14px', color: '#ff2d55' }}>🐾</span>
         </div>
-        <div className="brand-subtitle">SariSari Store</div>
+        <div className="brand-subtitle">
+          {isMember ? 'Suki Member Portal' : 'SariSari Store POS'}
+        </div>
       </div>
 
       {/* Navigation */}
@@ -47,7 +67,7 @@ export default function Sidebar({ isOpen, onClose }) {
           <NavLink 
             key={item.to} 
             to={item.to} 
-            end={item.to === '/'} 
+            end={item.to === '/' || item.to === '/member'} 
             onClick={handleNavClick}
             className={({isActive}) => `nav-item${isActive ? ' active' : ''}`}
           >
@@ -60,12 +80,30 @@ export default function Sidebar({ isOpen, onClose }) {
       {/* Bottom User Profile with Simplified Logout Button */}
       <div className="user-section">
         <div className="user-info">
-          <div className="user-avatar-circle">
-            👤
-          </div>
+          {isMember && memberData?.image_data ? (
+            <img 
+              src={memberData.image_data} 
+              alt={memberData.name} 
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '50%',
+                objectFit: 'cover',
+                border: '2px solid var(--crimson)'
+              }}
+            />
+          ) : (
+            <div className="user-avatar-circle">
+              {isMember ? (memberData?.name ? memberData.name.charAt(0).toUpperCase() : 'M') : '👤'}
+            </div>
+          )}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span className="user-name">Admin</span>
-            <span className="user-role">Owner</span>
+            <span className="user-name">
+              {isMember ? (memberData?.name || 'Suki Member') : 'Admin'}
+            </span>
+            <span className="user-role">
+              {isMember ? 'Suki Member ⭐' : 'Store Owner 👑'}
+            </span>
           </div>
         </div>
         

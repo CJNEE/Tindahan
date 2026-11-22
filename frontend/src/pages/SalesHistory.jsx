@@ -107,13 +107,13 @@ export default function SalesHistory() {
 
         <div className="dashboard-stat-card" style={{ padding: '20px', borderLeft: '4px solid #3b82f6' }}>
           <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Transactions Count</div>
-          <div style={{ fontSize: '26px', fontWeight: '800', color: '#60a5fa', marginTop: '6px' }}>{totalTransactions} orders</div>
+          <div style={{ fontSize: '26px', fontWeight: '800', color: 'var(--text)', marginTop: '6px' }}>{totalTransactions} orders</div>
           <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>Orders logged</div>
         </div>
 
         <div className="dashboard-stat-card" style={{ padding: '20px', borderLeft: '4px solid #f59e0b' }}>
           <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Total Units Sold</div>
-          <div style={{ fontSize: '26px', fontWeight: '800', color: '#fbbf24', marginTop: '6px' }}>{totalItemsSold} units</div>
+          <div style={{ fontSize: '26px', fontWeight: '800', color: 'var(--gold-300)', marginTop: '6px' }}>{totalItemsSold} units</div>
           <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>Total items purchased</div>
         </div>
       </div>

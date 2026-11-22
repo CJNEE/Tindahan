@@ -15,20 +15,13 @@ export default function POS() {
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [stockFilter, setStockFilter] = useState('all');
   const [checkoutSuccess, setCheckoutSuccess] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchProducts();
-    
-    // Connect global search in header to this state if user types there
-    const searchInput = document.getElementById('global-product-search');
-    if (searchInput) {
-      const handleInput = (e) => setSearchTerm(e.target.value);
-      searchInput.addEventListener('input', handleInput);
-      return () => searchInput.removeEventListener('input', handleInput);
-    }
   }, []);
 
   const fetchProducts = async () => {
@@ -172,10 +165,17 @@ export default function POS() {
     setIsSubmitting(false);
   };
 
-  const filteredProducts = products.filter(p => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    (p.sku && p.sku.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredProducts = products.filter(p => {
+    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (p.sku && p.sku.toLowerCase().includes(searchTerm.toLowerCase()));
+    const stock = Number(p.current_stock || 0);
+    const matchesStock =
+      stockFilter === 'all' ? true :
+      stockFilter === 'instock' ? stock > 5 :
+      stockFilter === 'low' ? (stock > 0 && stock <= 5) :
+      stockFilter === 'out' ? stock <= 0 : true;
+    return matchesSearch && matchesStock;
+  });
 
   const cartTotal = cart.reduce((total, item) => total + (item.product.selling_price * item.quantity), 0);
   const cartItemsCount = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -219,12 +219,37 @@ export default function POS() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '24px' }}>
         {/* Left Side: 3-Column Products Grid */}
         <div>
+          {/* Search + Stock Filter Toolbar */}
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{ flex: 1, minWidth: '180px', position: 'relative' }}>
+              <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: '14px' }}>🔍</span>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="Search products in shop..."
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                style={{ paddingLeft: '36px', height: '42px' }}
+              />
+            </div>
+            <select
+              className="form-select"
+              value={stockFilter}
+              onChange={e => setStockFilter(e.target.value)}
+              style={{ width: '170px', height: '42px' }}
+            >
+              <option value="all">📦 All Stock</option>
+              <option value="instock">✅ In Stock (&gt;5)</option>
+              <option value="low">⚠️ Low Stock (1–5)</option>
+              <option value="out">❌ Out of Stock</option>
+            </select>
+          </div>
           {loading ? (
             <div className="loading-spinner"></div>
           ) : filteredProducts.length === 0 ? (
             <div className="card" style={{ textAlign: 'center', padding: '50px 20px', color: 'var(--text-muted)' }}>
               <span style={{ fontSize: '2.5rem' }}>🔍</span>
-              <h3 style={{ marginTop: '10px', color: '#fff' }}>No products found</h3>
+              <h3 style={{ marginTop: '10px', color: 'var(--text)' }}>No products found</h3>
               <p>Try searching for a different keyword or add a new product</p>
             </div>
           ) : (

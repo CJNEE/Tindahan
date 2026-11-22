@@ -93,7 +93,7 @@ export default function Receipt() {
         </div>
 
         {/* Metadata info */}
-        <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '10px', padding: '12px', marginBottom: '16px', fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div style={{ background: 'var(--card-elevated)', borderRadius: '10px', padding: '12px', marginBottom: '16px', fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
           <div>Invoice: <strong style={{ color: 'var(--gold-300)' }}>{saleData.invoice_no || `INV-${saleData.id}`}</strong></div>
           <div>Date: <span>{new Date(saleData.created_at || saleData.date || Date.now()).toLocaleString()}</span></div>
           <div>Cashier: <span>{saleData.cashier || 'Admin'}</span></div>

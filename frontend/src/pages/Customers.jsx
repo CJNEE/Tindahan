@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api';
 import StatusBadge from '../components/StatusBadge';
@@ -24,11 +24,15 @@ export default function Customers() {
   const [loading, setLoading] = useState(true);
   const [showAddCustomer, setShowAddCustomer] = useState(false);
   const [showAddUtang, setShowAddUtang] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   // Customer form
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
+  const [newUsername, setNewUsername] = useState('');
+  const [newPassword, setNewPassword] = useState('');
 
   // Utang form
   const [utangCustomer, setUtangCustomer] = useState('');
@@ -93,7 +97,15 @@ export default function Customers() {
   async function createCustomer(e) {
     e.preventDefault();
     if (!name) return;
-    const newCust = { name, phone, address, credit_status: 'good', utang: 0 };
+    const newCust = { 
+      name, 
+      phone, 
+      address, 
+      username: newUsername || (phone ? phone : name.toLowerCase().replace(/\s+/g, '_')),
+      password: newPassword || 'password123',
+      credit_status: 'good', 
+      utang: 0 
+    };
     try {
       const res = await api.post('/customers/', newCust);
       if (res.data) setCustomers(prev => [res.data, ...prev]);
@@ -104,6 +116,8 @@ export default function Customers() {
     setName('');
     setPhone('');
     setAddress('');
+    setNewUsername('');
+    setNewPassword('');
     setShowAddCustomer(false);
   }
 
@@ -315,11 +329,11 @@ export default function Customers() {
       {/* Add New Customer Form */}
       {showAddCustomer && (
         <div className="card" style={{ marginBottom: 24, border: '1px solid var(--border-gold)', animation: 'slideDown 0.3s ease' }}>
-          <h3 style={{ marginTop: 0, marginBottom: 16 }}>➕ Add New Customer Account</h3>
+          <h3 style={{ marginTop: 0, marginBottom: 16 }}>➕ Add New Customer & Member Account</h3>
           <form onSubmit={createCustomer}>
-            <div className="form-group form-row" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1.5fr', gap: '14px', marginBottom: 16 }}>
+            <div className="form-group form-row" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1.5fr', gap: '14px', marginBottom: 14 }}>
               <div>
-                <label className="form-label">Full Name</label>
+                <label className="form-label">Full Name *</label>
                 <input 
                   className="form-input" 
                   value={name} 
@@ -347,20 +361,68 @@ export default function Customers() {
                 />
               </div>
             </div>
-            <button className="btn btn-primary" type="submit">✓ Create Customer</button>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: 16 }}>
+              <div>
+                <label className="form-label">Member Login Username (Optional)</label>
+                <input 
+                  className="form-input" 
+                  value={newUsername} 
+                  onChange={e => setNewUsername(e.target.value)} 
+                  placeholder="Leave empty to use phone or name"
+                />
+              </div>
+              <div>
+                <label className="form-label">Member Password (Optional)</label>
+                <input 
+                  type="password"
+                  className="form-input" 
+                  value={newPassword} 
+                  onChange={e => setNewPassword(e.target.value)} 
+                  placeholder="Default: password123"
+                />
+              </div>
+            </div>
+
+            <button className="btn btn-primary" type="submit">✓ Create Customer & Member Account</button>
           </form>
         </div>
       )}
 
       {/* Customer List */}
       <div className="card table-container">
+        {/* Search + Status Filter Toolbar */}
+        <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ flex: 1, minWidth: '180px', position: 'relative' }}>
+            <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: '14px' }}>🔍</span>
+            <input
+              type="text"
+              className="form-input"
+              placeholder="Search customer name or phone..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              style={{ paddingLeft: '36px', height: '42px' }}
+            />
+          </div>
+          <select
+            className="form-select"
+            value={statusFilter}
+            onChange={e => setStatusFilter(e.target.value)}
+            style={{ width: '185px', height: '42px' }}
+          >
+            <option value="all">👥 All Customers</option>
+            <option value="good">✅ Good Standing (₱0)</option>
+            <option value="hasutang">⚠️ Has Utang</option>
+            <option value="high">🔴 High Balance (&gt;₱300)</option>
+          </select>
+        </div>
         {loading ? (
           <div className="loading-spinner"></div>
         ) : (
           <table className="table">
             <thead>
               <tr>
-                <th>Customer Name</th>
+                <th>Customer / Suki Member</th>
                 <th>Phone</th>
                 <th>Address</th>
                 <th>Utang Balance</th>
@@ -369,21 +431,74 @@ export default function Customers() {
               </tr>
             </thead>
             <tbody>
-              {customers.map(c => {
+              {customers.filter(c => {
+                const q = searchTerm.toLowerCase();
+                const matchesSearch = c.name.toLowerCase().includes(q) || (c.phone && c.phone.includes(q));
+                const bal = getCustomerUtangBalance(c);
+                const matchesStatus =
+                  statusFilter === 'all' ? true :
+                  statusFilter === 'good' ? bal === 0 :
+                  statusFilter === 'hasutang' ? bal > 0 :
+                  statusFilter === 'high' ? bal > 300 : true;
+                return matchesSearch && matchesStatus;
+              }).map(c => {
                 const utangBal = getCustomerUtangBalance(c);
                 return (
                   <tr key={c.id}>
                     <td>
-                      <Link 
-                        to={`/customers/${c.id}`} 
-                        style={{ fontWeight: '700', color: 'var(--gold-200)', textDecoration: 'none' }}
-                      >
-                        {c.name}
-                      </Link>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        {c.image_data ? (
+                          <img 
+                            src={c.image_data} 
+                            alt={c.name} 
+                            style={{ 
+                              width: '36px', 
+                              height: '36px', 
+                              borderRadius: '50%', 
+                              objectFit: 'cover', 
+                              border: '2px solid var(--crimson)',
+                              boxShadow: '0 2px 8px var(--crimson-glow)',
+                              flexShrink: 0
+                            }} 
+                          />
+                        ) : (
+                          <div 
+                            style={{ 
+                              width: '36px', 
+                              height: '36px', 
+                              borderRadius: '50%', 
+                              background: 'var(--gradient-crimson)', 
+                              color: '#fff', 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              justifyContent: 'center', 
+                              fontSize: '14px', 
+                              fontWeight: '800',
+                              flexShrink: 0,
+                              boxShadow: '0 2px 8px var(--crimson-glow)'
+                            }}
+                          >
+                            {c.name ? c.name.charAt(0).toUpperCase() : 'C'}
+                          </div>
+                        )}
+                        <div>
+                          <Link 
+                            to={`/customers/${c.id}`} 
+                            style={{ fontWeight: '700', color: 'var(--gold-200)', textDecoration: 'none', display: 'block' }}
+                          >
+                            {c.name}
+                          </Link>
+                          {c.username && (
+                            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                              @{c.username}
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </td>
                     <td style={{ color: 'var(--text-secondary)' }}>{c.phone || 'N/A'}</td>
                     <td style={{ color: 'var(--text-muted)' }}>{c.address || 'N/A'}</td>
-                    <td style={{ color: utangBal > 0 ? '#f87171' : '#4ade80', fontWeight: '800' }}>
+                    <td style={{ color: utangBal > 0 ? 'var(--crimson)' : '#22c55e', fontWeight: '800' }}>
                       {utangBal > 0 ? `₱${utangBal.toFixed(2)}` : '₱0.00 (Paid)'}
                     </td>
                     <td>
@@ -404,10 +519,20 @@ export default function Customers() {
                   </tr>
                 );
               })}
-              {customers.length === 0 && (
+              {customers.filter(c => {
+                const q = searchTerm.toLowerCase();
+                const matchesSearch = c.name.toLowerCase().includes(q) || (c.phone && c.phone.includes(q));
+                const bal = getCustomerUtangBalance(c);
+                const matchesStatus =
+                  statusFilter === 'all' ? true :
+                  statusFilter === 'good' ? bal === 0 :
+                  statusFilter === 'hasutang' ? bal > 0 :
+                  statusFilter === 'high' ? bal > 300 : true;
+                return matchesSearch && matchesStatus;
+              }).length === 0 && (
                 <tr>
                   <td colSpan="6" style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>
-                    No customer records found.
+                    {customers.length === 0 ? 'No customer records found.' : 'No customers match your search or filter.'}
                   </td>
                 </tr>
               )}

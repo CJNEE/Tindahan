@@ -264,7 +264,49 @@ export default function CustomerDetail() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: '24px', marginBottom: '24px' }}>
           {/* Customer Profile Card */}
           <div className="card" style={{ padding: '22px' }}>
-            <h3 style={{ marginBottom: '14px' }}>Customer Profile</h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px' }}>
+              {customer.image_data ? (
+                <img 
+                  src={customer.image_data} 
+                  alt={customer.name} 
+                  style={{ 
+                    width: '56px', 
+                    height: '56px', 
+                    borderRadius: '50%', 
+                    objectFit: 'cover', 
+                    border: '2px solid var(--crimson)',
+                    boxShadow: '0 4px 12px var(--crimson-glow)' 
+                  }} 
+                />
+              ) : (
+                <div 
+                  style={{ 
+                    width: '56px', 
+                    height: '56px', 
+                    borderRadius: '50%', 
+                    background: 'var(--gradient-crimson)', 
+                    color: '#fff', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    fontSize: '22px', 
+                    fontWeight: '800',
+                    boxShadow: '0 4px 12px var(--crimson-glow)' 
+                  }}
+                >
+                  {customer.name ? customer.name.charAt(0).toUpperCase() : 'C'}
+                </div>
+              )}
+              <div>
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: 'var(--text)' }}>
+                  {customer.name}
+                </h3>
+                <span style={{ fontSize: '12px', color: 'var(--crimson)', fontWeight: '700' }}>
+                  {customer.username ? `@${customer.username}` : 'Suki Customer'}
+                </span>
+              </div>
+            </div>
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <div>
                 <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Phone</span>
@@ -274,6 +316,12 @@ export default function CustomerDetail() {
                 <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Address</span>
                 <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text)' }}>{customer.address || 'N/A'}</div>
               </div>
+              {customer.email && (
+                <div>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Email</span>
+                  <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text)' }}>{customer.email}</div>
+                </div>
+              )}
               <div>
                 <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Credit Rating</span>
                 <div style={{ marginTop: '4px' }}>
@@ -285,21 +333,21 @@ export default function CustomerDetail() {
 
           {/* Financial Summary */}
           <div className="card" style={{ padding: '22px' }}>
-            <h3 style={{ marginBottom: '14px' }}>Financial Balance</h3>
+            <h3 style={{ marginBottom: '14px', color: 'var(--text)' }}>Financial Balance</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginTop: '12px' }}>
-              <div style={{ padding: '14px', background: 'rgba(239,68,68,0.08)', borderRadius: '10px', border: '1px solid rgba(239,68,68,0.2)', textAlign: 'center' }}>
-                <div style={{ fontSize: '11px', color: '#f87171', fontWeight: '700', textTransform: 'uppercase' }}>Total Utang</div>
-                <div style={{ fontSize: '20px', fontWeight: '800', color: '#f87171', marginTop: '4px' }}>₱{displayOwed.toFixed(2)}</div>
+              <div style={{ padding: '14px', background: 'rgba(225,29,72,0.08)', borderRadius: '10px', border: '1px solid rgba(225,29,72,0.2)', textAlign: 'center' }}>
+                <div style={{ fontSize: '11px', color: 'var(--crimson)', fontWeight: '700', textTransform: 'uppercase' }}>Total Utang</div>
+                <div style={{ fontSize: '20px', fontWeight: '800', color: 'var(--crimson)', marginTop: '4px' }}>₱{displayOwed.toFixed(2)}</div>
               </div>
 
               <div style={{ padding: '14px', background: 'rgba(34,197,94,0.08)', borderRadius: '10px', border: '1px solid rgba(34,197,94,0.2)', textAlign: 'center' }}>
-                <div style={{ fontSize: '11px', color: '#4ade80', fontWeight: '700', textTransform: 'uppercase' }}>Total Paid</div>
-                <div style={{ fontSize: '20px', fontWeight: '800', color: '#4ade80', marginTop: '4px' }}>₱{paid.toFixed(2)}</div>
+                <div style={{ fontSize: '11px', color: '#16a34a', fontWeight: '700', textTransform: 'uppercase' }}>Total Paid</div>
+                <div style={{ fontSize: '20px', fontWeight: '800', color: '#16a34a', marginTop: '4px' }}>₱{paid.toFixed(2)}</div>
               </div>
 
-              <div style={{ padding: '14px', background: balance > 0 ? 'rgba(245,158,11,0.08)' : 'rgba(34,197,94,0.08)', borderRadius: '10px', border: `1px solid ${balance > 0 ? 'rgba(245,158,11,0.2)' : 'rgba(34,197,94,0.2)'}`, textAlign: 'center' }}>
-                <div style={{ fontSize: '11px', color: balance > 0 ? '#fbbf24' : '#4ade80', fontWeight: '700', textTransform: 'uppercase' }}>Balance Due</div>
-                <div style={{ fontSize: '20px', fontWeight: '800', color: balance > 0 ? 'var(--gold-300)' : '#4ade80', marginTop: '4px' }}>
+              <div style={{ padding: '14px', background: balance > 0 ? 'rgba(217,119,6,0.08)' : 'rgba(34,197,94,0.08)', borderRadius: '10px', border: `1px solid ${balance > 0 ? 'rgba(217,119,6,0.2)' : 'rgba(34,197,94,0.2)'}`, textAlign: 'center' }}>
+                <div style={{ fontSize: '11px', color: balance > 0 ? 'var(--gold-300)' : '#16a34a', fontWeight: '700', textTransform: 'uppercase' }}>Balance Due</div>
+                <div style={{ fontSize: '20px', fontWeight: '800', color: balance > 0 ? 'var(--gold-300)' : '#16a34a', marginTop: '4px' }}>
                   {balance > 0 ? `₱${balance.toFixed(2)}` : '₱0.00'}
                 </div>
               </div>

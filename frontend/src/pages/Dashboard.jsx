@@ -187,8 +187,8 @@ export default function Dashboard() {
         {/* Left Column: Product Inventory Overview */}
         <div className="card table-container" style={{ padding: '22px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
-            <h3 style={{ margin: 0, fontSize: '18px', color: '#fff' }}>📦 Product Inventory Overview</h3>
-            <Link to="/products" style={{ fontSize: '13px', color: '#ff6b8b', fontWeight: '700', textDecoration: 'none' }}>
+            <h3 style={{ margin: 0, fontSize: '18px', color: 'var(--text)' }}>📦 Product Inventory Overview</h3>
+            <Link to="/products" style={{ fontSize: '13px', color: 'var(--crimson)', fontWeight: '700', textDecoration: 'none' }}>
               View All Products ➔
             </Link>
           </div>
@@ -225,11 +225,11 @@ export default function Dashboard() {
                             📦
                           </div>
                         )}
-                        <Link to={`/products/${p.id}`} style={{ fontWeight: '700', color: '#fff', textDecoration: 'none' }}>
+                        <Link to={`/products/${p.id}`} style={{ fontWeight: '700', color: 'var(--text)', textDecoration: 'none' }}>
                           {p.name}
                         </Link>
                       </td>
-                      <td style={{ fontWeight: '700', color: '#fff' }}>₱{parseFloat(p.selling_price || 0).toFixed(2)}</td>
+                      <td style={{ fontWeight: '700', color: 'var(--text)' }}>₱{parseFloat(p.selling_price || 0).toFixed(2)}</td>
                       <td><strong>{p.current_stock}</strong> pcs</td>
                       <td>
                         <span className={`badge ${isLow ? 'status-danger' : 'status-success'}`}>
@@ -254,8 +254,8 @@ export default function Dashboard() {
           {/* Recent Sales Activity */}
           <div className="card table-container" style={{ padding: '22px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h3 style={{ margin: 0, fontSize: '18px', color: '#fff' }}>🧾 Recent Transactions</h3>
-              <Link to="/receipts" style={{ fontSize: '13px', color: '#ff6b8b', fontWeight: '700', textDecoration: 'none' }}>
+              <h3 style={{ margin: 0, fontSize: '18px', color: 'var(--text)' }}>🧾 Recent Transactions</h3>
+              <Link to="/receipts" style={{ fontSize: '13px', color: 'var(--crimson)', fontWeight: '700', textDecoration: 'none' }}>
                 View All ➔
               </Link>
             </div>
@@ -278,11 +278,11 @@ export default function Dashboard() {
                 <tbody>
                   {sales.slice(0, 5).map(s => (
                     <tr key={s.id}>
-                      <td style={{ fontWeight: '700', fontSize: '13px', color: '#fff' }}>{s.invoice_no}</td>
+                      <td style={{ fontWeight: '700', fontSize: '13px', color: 'var(--gold-200)' }}>{s.invoice_no}</td>
                       <td>
                         <StatusBadge status={s.type === 'utang' ? 'utang' : 'paid'} />
                       </td>
-                      <td style={{ textAlign: 'right', fontWeight: '800', color: '#fff' }}>
+                      <td style={{ textAlign: 'right', fontWeight: '800', color: 'var(--text)' }}>
                         ₱{Number(s.total_amount || 0).toFixed(2)}
                       </td>
                       <td style={{ textAlign: 'center' }}>
@@ -300,14 +300,14 @@ export default function Dashboard() {
           {/* Customers with Active Utang */}
           <div className="card table-container" style={{ padding: '22px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h3 style={{ margin: 0, fontSize: '18px', color: '#fff' }}>👥 Active Utang Collectibles</h3>
-              <Link to="/payments" style={{ fontSize: '13px', color: '#ff6b8b', fontWeight: '700', textDecoration: 'none' }}>
+              <h3 style={{ margin: 0, fontSize: '18px', color: 'var(--text)' }}>👥 Active Utang Collectibles</h3>
+              <Link to="/payments" style={{ fontSize: '13px', color: 'var(--crimson)', fontWeight: '700', textDecoration: 'none' }}>
                 Settle ➔
               </Link>
             </div>
 
             {utangCustomers.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '24px', color: '#4ade80', fontWeight: 'bold' }}>
+              <div style={{ textAlign: 'center', padding: '24px', color: '#16a34a', fontWeight: 'bold' }}>
                 🎉 No active utang balances! All customers are fully paid.
               </div>
             ) : (
@@ -323,11 +323,11 @@ export default function Dashboard() {
                   {utangCustomers.map(c => (
                     <tr key={c.id}>
                       <td>
-                        <Link to={`/customers/${c.id}`} style={{ fontWeight: '700', color: '#fff', textDecoration: 'none' }}>
+                        <Link to={`/customers/${c.id}`} style={{ fontWeight: '700', color: 'var(--text)', textDecoration: 'none' }}>
                           {c.name}
                         </Link>
                       </td>
-                      <td style={{ textAlign: 'right', color: '#f87171', fontWeight: '800' }}>
+                      <td style={{ textAlign: 'right', color: 'var(--crimson)', fontWeight: '800' }}>
                         ₱{c.currentUtang.toFixed(2)}
                       </td>
                       <td style={{ textAlign: 'center' }}>

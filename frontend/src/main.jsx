@@ -12,6 +12,7 @@ import ReceiptsList from './pages/ReceiptsList'
 import SalesHistory from './pages/SalesHistory'
 import ProductDetail from './pages/ProductDetail'
 import CustomerDetail from './pages/CustomerDetail'
+import MemberPortal from './pages/MemberPortal'
 import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
 import './styles.css'
@@ -21,6 +22,7 @@ function App(){
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login/>} />
+        <Route path="/member" element={<ProtectedRoute><Layout><MemberPortal/></Layout></ProtectedRoute>} />
         <Route path="/" element={<ProtectedRoute><Layout><Dashboard/></Layout></ProtectedRoute>} />
         <Route path="/products" element={<ProtectedRoute><Layout><Products/></Layout></ProtectedRoute>} />
         <Route path="/products/:id" element={<ProtectedRoute><Layout><ProductDetail/></Layout></ProtectedRoute>} />
